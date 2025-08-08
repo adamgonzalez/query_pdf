@@ -47,6 +47,7 @@ class interactive_document:
             self.prompt
             )
 
+    @st.cache
     def vectorize(self):
         """
         Vectorize the PDF and set up retriever for querying.
@@ -78,8 +79,8 @@ class interactive_document:
 
 
 # Initialize the streamlit app page
-st.set_page_config(layout = 'wide')
-st.title("PDF Chatter", width = 'content')
+st.set_page_config(layout='wide')
+st.title("PDF Chatter", width='content')
 fileupload, questions, answers = st.columns(3)
 
 uploaded_file = fileupload.file_uploader(
@@ -96,16 +97,17 @@ if uploaded_file is not None:
             file.vectorize()
         st.success("Document processed!")
         st.write("You can now chat with your PDF.")
+        
+with questions:
+    st.text_input()
+    # with st.form(key="query_form"):
+    #     query = st.text_input("Your question:", value="")
+    #     submit_button = st.form_submit_button(label="Ask")
 
-    with questions:
-        with st.form(key="query_form"):
-            query = st.text_input("Your question:", value="")
-            submit_button = st.form_submit_button(label="Ask")
+with answers:
+    if query != "":
+        with st.spinner(text="Generating a response...", show_time=True):
+            file.ask(query)
+        st.write(fill(file.answer))
 
-    with answers:
-        if query != "":
-            with st.spinner(text="Generating a response...", show_time=True):
-                file.ask(query)
-            st.write(fill(file.answer))
-
-### need to figure out how to prevent vectorization from running when the query is submitted
+    ### need to figure out how to prevent vectorization from running when the query is submitted
